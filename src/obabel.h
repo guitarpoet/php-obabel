@@ -5,6 +5,8 @@
 #include "config.h"
 #endif
 
+#pragma GCC diagnostic ignored "-Wc++11-compat-deprecated-writable-strings"
+
 #define PHP_OBABEL_VERSION "0.0.1"
 #define PHP_OBABEL_EXTNAME "obabel"
 #define PHP_OBABEL_LIB_VERSION "4.0.2"

@@ -1,5 +1,8 @@
 #include "obabel.h"
 #include "functions.h"
+#include <strstream>
+
+
 
 /*******************************************************************************
  *
@@ -31,16 +34,18 @@ PHP_FUNCTION(obabel_convert) {
 	int input_format_length = 0;
 	char* s_output_format = NULL;
 	int output_format_length = 0;
+	zval* pzv_options;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss", &s_input, &input_length,
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssa", &s_input, &input_length,
 		&s_input_format, &input_format_length, 
-		&s_output_format, &output_format_length) == SUCCESS) {
+		&s_output_format, &output_format_length, &pzv_options) == SUCCESS) {
 
-		char buffer[1024];
+		std::ostringstream output;
+		std::istringstream input(s_input);
+		obabel_function_convert(&input, s_input_format, &output, s_output_format, pzv_options);
 
-		obabel_function_convert(s_input, s_input_format, buffer, s_output_format);
-
-		RETURN_STRING(buffer, true);
+		RETURN_STRING(output.str().c_str(), true);
 	}
 }
 
