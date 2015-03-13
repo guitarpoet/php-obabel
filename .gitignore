@@ -26,3 +26,5 @@
 /run-tests.php
 /.deps
 .libs
+*.lo
+*.o
