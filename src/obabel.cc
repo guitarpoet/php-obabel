@@ -1,7 +1,7 @@
 #include "obabel.h"
 #include "functions.h"
 #include <strstream>
-
+#include <openbabel/mol.h>
 
 
 /*******************************************************************************
@@ -27,7 +27,6 @@ PHP_FUNCTION(obabel_version) {
  *
  *******************************************************************************/
 PHP_FUNCTION(obabel_convert) {
-
 	char* s_input = NULL;
 	int input_length = 0;
 	char* s_input_format = NULL;
@@ -47,6 +46,51 @@ PHP_FUNCTION(obabel_convert) {
 
 		RETURN_STRING(output.str().c_str(), true);
 	}
+}
+
+/*******************************************************************************
+ *
+ *  Function obabel_mol
+ *
+ *  This function will convert the input string to output format
+ *
+ *  @version 1.0
+ *
+ *******************************************************************************/
+PHP_FUNCTION(obabel_mol) {
+	char* s_input = NULL;
+	int input_length = 0;
+	zval* pzv_out;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &s_input, &input_length,
+		&pzv_out) == SUCCESS) {
+
+		std::istringstream input(s_input);
+		std::ostringstream output;
+
+		OpenBabel::OBConversion conv(&input, &output);
+		conv.SetInFormat("mol");
+
+		OpenBabel::OBMol mol;
+
+		if(conv.Read(&mol)) {
+			add_assoc_string(pzv_out, "title", (char*) mol.GetTitle(), true);
+			add_assoc_long(pzv_out, "atoms", mol.NumAtoms());
+			add_assoc_long(pzv_out, "bonds", mol.NumBonds());
+			add_assoc_long(pzv_out, "heavy atoms", mol.NumHvyAtoms());
+			add_assoc_long(pzv_out, "residues", mol.NumResidues());
+			add_assoc_long(pzv_out, "rotors", mol.NumRotors());
+			add_assoc_long(pzv_out, "total charge", mol.GetTotalCharge());
+			add_assoc_long(pzv_out, "total spin multiplicity", mol.GetTotalSpinMultiplicity());
+			add_assoc_double(pzv_out, "energy", mol.GetEnergy());
+			add_assoc_double(pzv_out, "mol weight", mol.GetMolWt());
+			add_assoc_double(pzv_out, "exact mass", mol.GetExactMass());
+			add_assoc_string(pzv_out, "formula", (char*) mol.GetFormula().c_str(), true);
+			add_assoc_string(pzv_out, "formula spaced", (char*) mol.GetSpacedFormula().c_str(), true);
+			RETURN_TRUE;
+		}
+	}
+	RETURN_FALSE;
 }
 
 
@@ -88,6 +132,7 @@ static PHP_MSHUTDOWN_FUNCTION(obabel) {
 static zend_function_entry obabel_functions[] = {
     PHP_FE(obabel_version, NULL)   
     PHP_FE(obabel_convert, NULL)   
+    PHP_FE(obabel_mol, NULL)   
 	PHP_FE_END
 };
   

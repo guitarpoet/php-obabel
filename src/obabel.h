@@ -19,6 +19,7 @@
 
 PHP_FUNCTION(obabel_version);
 PHP_FUNCTION(obabel_convert);
+PHP_FUNCTION(obabel_mol);
 
 static PHP_MINIT_FUNCTION(obabel);
 static PHP_MINFO_FUNCTION(obabel);
