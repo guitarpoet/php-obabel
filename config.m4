@@ -18,6 +18,9 @@ if test "$PHP_OBABEL" != "no"; then
 		if test -f $i/libopenbabel.dylib; then
 			OBABEL_LD_DIR=$i
 		fi
+		if test -f $i/libopenbabel.so; then
+			OBABEL_LD_DIR=$i
+		fi
 	done
 
 	if test -z "$OBABEL_INCDIR"; then

@@ -133,7 +133,7 @@ static zend_function_entry obabel_functions[] = {
     PHP_FE(obabel_version, NULL)   
     PHP_FE(obabel_convert, NULL)   
     PHP_FE(obabel_mol, NULL)   
-	PHP_FE_END
+	NULL, NULL, NULL
 };
   
 zend_module_entry obabel_module_entry = {
