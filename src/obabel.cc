@@ -1,7 +1,6 @@
 #include "obabel.h"
 #include "functions.h"
 #include <strstream>
-#include <openbabel/mol.h>
 
 
 /*******************************************************************************
@@ -14,7 +13,29 @@
  *
  *******************************************************************************/
 PHP_FUNCTION(obabel_version) {
-	RETURN_STRING(PHP_OBABEL_LIB_VERSION, true);
+	RETURN_STRING(OpenBabel::OBReleaseVersion().c_str(), true);
+}
+
+/*******************************************************************************
+ *
+ *  Function obabel_format_exists
+ *
+ *  This function will test if the format is exists in obabel
+ *
+ *  @version 1.0
+ *
+ *******************************************************************************/
+PHP_FUNCTION(obabel_format_exists) {
+	char* s_format = NULL;
+	int format_length = 0;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &s_format, &format_length) == SUCCESS) {
+		OpenBabel::OBConversion conv;
+		if(conv.FindFormat(s_format)) {
+			RETURN_TRUE;
+		}
+	}
+	RETURN_FALSE;
 }
 
 /*******************************************************************************
@@ -132,6 +153,7 @@ static PHP_MSHUTDOWN_FUNCTION(obabel) {
 static zend_function_entry obabel_functions[] = {
     PHP_FE(obabel_version, NULL)   
     PHP_FE(obabel_convert, NULL)   
+    PHP_FE(obabel_format_exists, NULL)   
     PHP_FE(obabel_mol, NULL)   
 	NULL, NULL, NULL
 };

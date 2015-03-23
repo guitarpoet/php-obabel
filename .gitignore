@@ -28,3 +28,4 @@
 .libs
 *.lo
 *.o
+*.swp
