@@ -65,7 +65,8 @@ PHP_FUNCTION(obabel_convert) {
 		std::istringstream input(s_input);
 		obabel_function_convert(&input, s_input_format, &output, s_output_format, pzv_options);
 
-		RETURN_STRING(output.str().c_str(), true);
+		std::string s_output = output.str();
+		RETURN_STRING(s_output.c_str(), true);
 	}
 }
 
