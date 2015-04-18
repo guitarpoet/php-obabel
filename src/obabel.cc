@@ -1,5 +1,6 @@
 #include "obabel.h"
 #include "functions.h"
+#include <string.h>
 #include <strstream>
 
 
@@ -115,6 +116,63 @@ PHP_FUNCTION(obabel_mol) {
 	RETURN_FALSE;
 }
 
+/*******************************************************************************
+ *
+ *  Open SDF function
+ *
+ *  This function will try to open an sdf file to read mol data
+ *
+ *  @version 1.0
+ *
+ *******************************************************************************/
+PHP_FUNCTION(obabel_read_sdf) {
+	char* s_filename = NULL;
+	int filename_length = 0;
+	zval* pzv_out = NULL;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &s_filename, &filename_length, &pzv_out) == SUCCESS) {
+		// Setup the input and output stream
+		std::ifstream s_in(s_filename);
+		std::ostringstream s_out;
+		OpenBabel::OBConversion conv(&s_in, &s_out);
+		conv.SetInAndOutFormats("SDF", "MOL");
+
+		std::cout << s_filename << std::endl;
+		OpenBabel::OBMol mol; 
+		while(conv.Read(&mol)) {
+			// Make the array variable
+			zval* pzv_item = NULL;
+			MAKE_STD_ZVAL(pzv_item);
+			array_init(pzv_item);
+
+			conv.Write(&mol);
+
+			// Get the mol output
+			std::string s = s_out.str();
+
+			// Add the mol to the output
+			add_assoc_string(pzv_item, "mol", (char*) s.c_str(), true);
+
+			// Getting all the data into PHP
+			std::vector<OpenBabel::OBGenericData*> datas = mol.GetAllData(1);
+
+            for(std::vector<OpenBabel::OBGenericData*>::iterator i = datas.begin(); i != datas.end(); i++) {
+				OpenBabel::OBGenericData* data = *i;
+				add_assoc_string(pzv_item, (char*) strdup(data->GetAttribute().c_str()), (char*) data->GetValue().c_str(), true);
+			}
+
+			// Clear the string output stream
+			s_out.str("");
+
+			// Add this item to the result array
+			add_next_index_zval(pzv_out, pzv_item);
+		}
+		RETURN_TRUE;
+	}
+
+    RETURN_FALSE;
+}
+
 
 /*******************************************************************************
  *
@@ -155,7 +213,8 @@ static zend_function_entry obabel_functions[] = {
     PHP_FE(obabel_version, NULL)   
     PHP_FE(obabel_convert, NULL)   
     PHP_FE(obabel_format_exists, NULL)   
-    PHP_FE(obabel_mol, NULL)   
+    PHP_FE(obabel_read_sdf, NULL)
+    PHP_FE(obabel_mol, NULL)
 	NULL, NULL, NULL
 };
   
