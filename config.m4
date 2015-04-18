@@ -13,7 +13,7 @@ if test "$PHP_OBABEL" != "no"; then
 		fi
 	done
 
-	OBABEL_LIB_SEARCH_DIRS="/usr/local/lib /usr/lib /opt/local/lib"
+	OBABEL_LIB_SEARCH_DIRS="/usr/local/lib /usr/local/lib64 /usr/lib /usr/lib64 /opt/local/lib /opt/local/lib64"
 	for i in $OBABEL_LIB_SEARCH_DIRS; do
 		if test -f $i/libopenbabel.dylib; then
 			OBABEL_LD_DIR=$i
