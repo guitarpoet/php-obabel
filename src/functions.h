@@ -6,6 +6,6 @@
 #include <openbabel/obconversion.h>
 #pragma GCC diagnostic ignored "-Wc++11-compat-deprecated-writable-strings"
 
-bool obabel_function_convert(std::istream* ps_input, const char* s_input_format, std::ostream* ps_output, const char* s_output_format, zval* pzv_options);
+bool obabel_function_convert(std::istream* ps_input, const char* s_input_format, std::ostream* ps_output, const char* s_output_format, zval* pzv_gen_options, zval* pzv_in_options, zval* pzv_out_options);
 
 #endif

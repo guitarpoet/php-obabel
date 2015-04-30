@@ -55,16 +55,19 @@ PHP_FUNCTION(obabel_convert) {
 	int input_format_length = 0;
 	char* s_output_format = NULL;
 	int output_format_length = 0;
-	zval* pzv_options;
+	zval* pzv_gen_options;
+	zval* pzv_in_options;
+	zval* pzv_out_options;
 
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssa", &s_input, &input_length,
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssaaa", &s_input, &input_length,
 		&s_input_format, &input_format_length, 
-		&s_output_format, &output_format_length, &pzv_options) == SUCCESS) {
+		&s_output_format, &output_format_length, &pzv_gen_options, &pzv_in_options, &pzv_out_options) == SUCCESS) {
 
 		std::ostringstream output;
 		std::istringstream input(s_input);
-		obabel_function_convert(&input, s_input_format, &output, s_output_format, pzv_options);
+		obabel_function_convert(&input, s_input_format, &output, s_output_format, pzv_gen_options,
+				pzv_in_options, pzv_out_options);
 
 		std::string s_output = output.str();
 		RETURN_STRING(s_output.c_str(), true);
@@ -137,7 +140,6 @@ PHP_FUNCTION(obabel_read_sdf) {
 		OpenBabel::OBConversion conv(&s_in, &s_out);
 		conv.SetInAndOutFormats("SDF", "MOL");
 
-		std::cout << s_filename << std::endl;
 		OpenBabel::OBMol mol; 
 		while(conv.Read(&mol)) {
 			// Make the array variable
