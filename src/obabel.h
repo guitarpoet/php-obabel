@@ -22,6 +22,7 @@ PHP_FUNCTION(obabel_version);
 PHP_FUNCTION(obabel_format_exists);
 PHP_FUNCTION(obabel_convert);
 PHP_FUNCTION(obabel_mol);
+PHP_FUNCTION(obabel_fragment);
 PHP_FUNCTION(obabel_read_sdf);
 
 static PHP_MINIT_FUNCTION(obabel);

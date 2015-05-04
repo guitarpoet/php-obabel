@@ -1,5 +1,33 @@
 #include "functions.h"
+#include "fragment.h"
 #include <string.h>
+#include <vector>
+#include <set>
+
+bool obabel_function_fragment(OpenBabel::OBMol* mol, zval* pzv_arr) {
+	Fragmentor* pf = new Fragmentor();
+	Fset* pf_set = pf->fragment(mol);
+	SetItr itr;
+	for(itr=pf_set->begin(); itr!=pf_set->end();++itr) {
+		// The fragment vector
+		std::vector<int> v = (std::vector<int>) *itr;
+
+		// Create the vector
+		zval* pzv_vec = NULL;
+		MAKE_STD_ZVAL(pzv_vec);
+		array_init(pzv_vec);
+
+		std::vector<int>::iterator i;
+
+		for(i=v.begin(); i!=v.end(); ++i) {
+			add_next_index_long(pzv_vec, *i);
+		}
+
+		add_next_index_zval(pzv_arr, pzv_vec);
+	}
+	
+	return true;
+}
 
 void obabel_function_set_conversion_opts(OpenBabel::OBConversion* conv, zval* pzv_options, OpenBabel::OBConversion::Option_type ot_type) {
 	if(pzv_options) {

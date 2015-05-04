@@ -36,5 +36,5 @@ if test "$PHP_OBABEL" != "no"; then
 	PHP_ADD_LIBRARY_WITH_PATH(openbabel, $OBABEL_LD_DIR, OBABEL_SHARED_LIBADD)
 	LDFLAGS="-L$OBABEL_LD_DIR -lopenbabel -lstdc++"
 	PHP_ADD_INCLUDE($OBABEL_INCDIR)
-    PHP_NEW_EXTENSION(obabel, src/obabel.cc src/functions.cc, $ext_shared,,"",yes)
+    PHP_NEW_EXTENSION(obabel, src/obabel.cc src/functions.cc src/fragment.cc, $ext_shared,,"",yes)
 fi

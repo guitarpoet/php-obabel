@@ -3,7 +3,6 @@
 #include <string.h>
 #include <strstream>
 
-
 /*******************************************************************************
  *
  *  Function obabel_version
@@ -121,6 +120,39 @@ PHP_FUNCTION(obabel_mol) {
 
 /*******************************************************************************
  *
+ *  Function obabel_fragment
+ *
+ *  This function will fragment the smiles into fragments
+ *
+ *  @version 1.0
+ *
+ *******************************************************************************/
+PHP_FUNCTION(obabel_fragment) {
+	char* s_mol = NULL;
+	int mol_length = 0;
+	zval* pzv_out;
+
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &s_mol, &mol_length,
+		&pzv_out) == SUCCESS) {
+		std::istringstream input(s_mol);
+		std::ostringstream output;
+
+		OpenBabel::OBConversion conv(&input, &output);
+		conv.SetInFormat("smiles");
+
+		OpenBabel::OBMol mol;
+
+		if(conv.Read(&mol)) {
+			obabel_function_fragment(&mol, pzv_out);
+		}
+	}
+
+	RETURN_TRUE;
+}
+
+
+/*******************************************************************************
+ *
  *  Open SDF function
  *
  *  This function will try to open an sdf file to read mol data
@@ -214,6 +246,7 @@ static PHP_MSHUTDOWN_FUNCTION(obabel) {
 static zend_function_entry obabel_functions[] = {
     PHP_FE(obabel_version, NULL)   
     PHP_FE(obabel_convert, NULL)   
+    PHP_FE(obabel_fragment, NULL)   
     PHP_FE(obabel_format_exists, NULL)   
     PHP_FE(obabel_read_sdf, NULL)
     PHP_FE(obabel_mol, NULL)
