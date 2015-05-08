@@ -13,7 +13,11 @@
  *
  *******************************************************************************/
 PHP_FUNCTION(obabel_version) {
+#ifdef HAVE_OBABEL_RELEASE_VERSION
 	RETURN_STRING(OpenBabel::OBReleaseVersion().c_str(), true);
+#else
+	RETURN_STRING("1.0", true);
+#endif
 }
 
 /*******************************************************************************
