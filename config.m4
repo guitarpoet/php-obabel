@@ -39,7 +39,7 @@ if test "$PHP_OBABEL" != "no"; then
       [AC_LANG_PROGRAM([#include <openbabel/mol.h>],
 	  [OpenBabel::OBReleaseVersion()])],
       [AC_DEFINE([HAVE_OBABEL_RELEASE_VERSION], [], [Openbabel have OBReleaseVersion function])],
-      [AC_MSG_ERROR([libopenbabel do not have OpenBabel::OBReleaseVersion function.])])
+      [AC_MSG_WARN([libopenbabel do not have OpenBabel::OBReleaseVersion function.])])
 	CPPFLAGS=$OLD_CPPFLAGS
 
 	if test -z "$OBABEL_INCDIR"; then
