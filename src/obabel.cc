@@ -2,6 +2,7 @@
 #include "functions.h"
 #include <string.h>
 #include <strstream>
+#include <openbabel/descriptor.h>
 
 /*******************************************************************************
  *
@@ -89,10 +90,11 @@ PHP_FUNCTION(obabel_convert) {
 PHP_FUNCTION(obabel_mol) {
 	char* s_input = NULL;
 	int input_length = 0;
-	zval* pzv_out;
+	zval* pzv_desc = NULL;
+	zval* pzv_out = NULL;
 
-	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &s_input, &input_length,
-		&pzv_out) == SUCCESS) {
+	if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "saa", &s_input, &input_length,
+		&pzv_desc, &pzv_out) == SUCCESS) {
 
 		std::istringstream input(s_input);
 		std::ostringstream output;
@@ -103,6 +105,32 @@ PHP_FUNCTION(obabel_mol) {
 		OpenBabel::OBMol mol;
 
 		if(conv.Read(&mol)) {
+			// Add the descriptors
+			HashTable* ht = Z_ARRVAL_P(pzv_desc);
+			HashPosition position;
+			zval **data = NULL;
+
+			for (zend_hash_internal_pointer_reset_ex(ht, &position);
+				 zend_hash_get_current_data_ex(ht, (void**) &data, &position) == SUCCESS;
+				 zend_hash_move_forward_ex(ht, &position)) {
+
+				 char *key = NULL;
+				 uint  klen;
+				 ulong index;
+
+				 if (zend_hash_get_current_key_ex(ht, &key, &klen, &index, 0, &position) == HASH_KEY_IS_LONG) {
+					// This is only the value
+					if(Z_TYPE_P(*data) == IS_STRING) {
+						const char* s_desc = (const char*) Z_STRVAL_P(*data);
+						OpenBabel::OBDescriptor* p_descr = OpenBabel::OBDescriptor::FindType(s_desc);
+						if(p_descr) {
+							p_descr->PredictAndSave(&mol, NULL);
+						}
+					}
+				 } 
+			}
+			
+			// Add basic properties
 			add_assoc_string(pzv_out, "title", (char*) mol.GetTitle(), true);
 			add_assoc_long(pzv_out, "atoms", mol.NumAtoms());
 			add_assoc_long(pzv_out, "bonds", mol.NumBonds());
@@ -116,6 +144,18 @@ PHP_FUNCTION(obabel_mol) {
 			add_assoc_double(pzv_out, "exact mass", mol.GetExactMass());
 			add_assoc_string(pzv_out, "formula", (char*) mol.GetFormula().c_str(), true);
 			add_assoc_string(pzv_out, "formula spaced", (char*) mol.GetSpacedFormula().c_str(), true);
+
+			// Add all the propertymaps
+			std::vector<OpenBabel::OBGenericData*> vdata = mol.GetData();
+			std::vector<OpenBabel::OBGenericData*>::iterator k;
+			for (k = vdata.begin();k != vdata.end();++k) {
+				std::string s_k = (*k)->GetAttribute();
+				std::string s_v =((OBPairData*)(*k))->GetValue();
+				if ((*k)->GetDataType() == OpenBabel::OBGenericDataType::PairData) {
+					add_assoc_string(pzv_out, s_k.c_str(), (char *)s_v.c_str(), true);
+				}
+			}
+
 			RETURN_TRUE;
 		}
 	}
